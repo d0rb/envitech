@@ -1,4 +1,3 @@
-// Android DropDown Menu/Popup Menu Tutorial with Example
 package com.example.tabstest;
 
 import android.content.Context;
