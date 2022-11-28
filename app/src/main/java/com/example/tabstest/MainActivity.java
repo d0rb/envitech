@@ -1,6 +1,9 @@
 // Android DropDown Menu/Popup Menu Tutorial with Example
 package com.example.tabstest;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.Spannable;
@@ -12,8 +15,10 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
 
 import com.example.tabstest.Objects.MonitorObj;
 import com.example.tabstest.Objects.MonitorObject;
@@ -46,7 +51,12 @@ public class MainActivity extends AppCompatActivity implements MenuItem.OnMenuIt
         LinearLayout layout = (LinearLayout) findViewById(R.id.linearlayout);
         layout2 = (LinearLayout) findViewById(R.id.linearlayout2);
         showMenu = (Button) findViewById(R.id.show_dropdown_menu);
-        getJson();
+        if(isNetworkAvailable()){
+            getJson();
+        }else{
+            Toast.makeText(getApplicationContext(),"Sorry , not internet connection found", Toast.LENGTH_SHORT).show();
+        }
+
 
 
     }
@@ -110,7 +120,6 @@ public class MainActivity extends AppCompatActivity implements MenuItem.OnMenuIt
                                 MonitorTypeArray = Jobject.getJSONArray("Monitor");
                                 for(int i=0;i<MonitorTypeArray.length();i++){
                                     MonitorObj monitorObj = new MonitorObj();
-                                    monitorObject = new MonitorObject();
                                     JSONObject jsonObject = MonitorTypeArray.getJSONObject(i);
                                     monitorObject = monitorObjectArrayList.get(jsonObject.getInt("MonitorTypeId"));
                                     monitorObj.Name = jsonObject.getString("Name");
@@ -140,7 +149,6 @@ public class MainActivity extends AppCompatActivity implements MenuItem.OnMenuIt
             myButton.setText(monitorObjectArrayList.get(i).Name);
             myButton.setTag(i);
             int finalI = i;
-            int MonitorArraySize = monitorObjectArrayList.get(i).TagsArray.size();
             myButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -157,10 +165,10 @@ public class MainActivity extends AppCompatActivity implements MenuItem.OnMenuIt
                         public boolean onMenuItemClick(MenuItem menuItem) {
                             int size = monitorObjectArrayList.get(menuItem.getGroupId()).TagsArray.size();
                             for(int i = 0  ; i < size ; i++){
-                                TextView myTextView = new TextView(getApplicationContext());
-                                Spannable spannable = new SpannableString(monitorObjectArrayList.get(menuItem.getGroupId()).TagsArray.get(i).Label+"   ");
-                                myTextView.setText(Html.fromHtml(monitorObjectArrayList.get(menuItem.getGroupId()).TagsArray.get(i).Label + "<font color="+monitorObjectArrayList.get(menuItem.getGroupId()).TagsArray.get(i).Color+">" +" [] " + "</font>"));
-                                layout2.addView(myTextView);
+                                TextView body_text_view = new TextView(getApplicationContext());
+                                body_text_view.setText(Html.fromHtml(monitorObjectArrayList.get(menuItem.getGroupId()).TagsArray.get(i).Label + "<font color="+monitorObjectArrayList.get(menuItem.getGroupId()).TagsArray.get(i).Color+">" +" &#9632;&#x25A0;" + "</font>"));
+                                body_text_view.setTextSize(15);
+                                layout2.addView(body_text_view);
                             }
                             return true;
                         }
@@ -171,9 +179,15 @@ public class MainActivity extends AppCompatActivity implements MenuItem.OnMenuIt
             layout.addView(myButton);
         }
     }
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager != null ? connectivityManager.getActiveNetworkInfo() : null;
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
 
     @Override
-    public boolean onMenuItemClick(MenuItem menuItem) {
+    public boolean onMenuItemClick(MenuItem item) {
         return false;
     }
 }
